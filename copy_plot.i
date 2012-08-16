@@ -141,9 +141,11 @@ func replot_one_sys(wsrc,sin,wout,sout,lmt=)
 
 
 func save_plot(fstrm,wsrc,pal=)
-/* DOCUMENT save_plot(fstrm,win,pal)
+/* DOCUMENT save_plot,fstrm,win,pal=
+   -or- grp = save_plot(win,pal=)
    Save Yorick plot of window win in fstrm, which may be a filename, file
-   stream, or empty oxy group object. The plot can be reloaded with load_plot.
+   stream, or empty oxy group object. If called as a function, will return an
+   oxy group object. The plot can be reloaded with load_plot.
 
    KEYWORDS: pal= : save the palette if any in the file (the default)
    
@@ -168,7 +170,10 @@ func save_plot(fstrm,wsrc,pal=)
   if(is_void(pal)) pal=1;
 
   autoclose=0;
-  if(is_string(fstrm)) {
+  if(!am_subroutine()) {
+    wrsc=fstrm;
+    fstrm=save();
+  } else if(is_string(fstrm)) {
     fstrm=createb(fstrm);
     autoclose=1;
   }
@@ -214,6 +219,7 @@ func save_plot(fstrm,wsrc,pal=)
       window,old_win;
       plsys,old_sys;
     }
+  if(!am_subroutine()) return fstrm;
 }
 
 
