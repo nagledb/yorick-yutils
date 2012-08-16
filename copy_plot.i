@@ -223,8 +223,8 @@ func save_plot(fstrm,wsrc,pal=)
 }
 
 
-func load_plot(fstrm,wout,clear=,lmt=,pal=,style=)
-/* DOCUMENT load_plot,fstrm,wout,clear=,lmt=,pal=,style=
+func load_plot(fstrm,wout,clear=,lmt=,pal=,style=,systems=)
+/* DOCUMENT load_plot,fstrm,wout,clear=,lmt=,pal=,style=,systems=
    Load Yorick plot from fstrm (which may be a filename, file stream, or empty
    oxy group object) and plot in wout. The plot have to be saved with
    save_plot.
@@ -239,11 +239,14 @@ func load_plot(fstrm,wout,clear=,lmt=,pal=,style=)
    load_plot,"rand_array.gdb",1;
 
    KEYWORDS: lmt=   if set (default), restore also the
-                    imits
+                    limits
              clear= if set (default) erase the window
                     before loading
              pal=   use the palette saved in the file if any (the default)
              style= use the style saved in the file if any (the default)
+             systems= set to an array of system numbers to only load those
+                    systems; all systems specified must exist in plot being
+                    loaded
    
    SEE ALSO: save_plot,copy_win
  */
@@ -275,22 +278,36 @@ func load_plot(fstrm,wout,clear=,lmt=,pal=,style=)
   
   nnames=numberof(names);
   idx=4+palette_is_present;
+  skip=0;
   while(++idx<=nnames)
     {
       if(strmatch(names(idx),"system_"))
         {
-          plsys,get_member(fstrm,names(idx));
+          sys=get_member(fstrm,names(idx));
+          if(!is_void(systems)) {
+            skip=0;
+            if(noneof(sys==systems)) {
+              skip=1;
+              continue;
+            }
+          }
+          plsys,sys;
           limits;
           continue;
         }
       if(strmatch(names(idx),"limits_"))
         {
+          if(skip) continue;
           if(lmt) limits,get_member(fstrm,names(idx));
           continue;
         }
 
       if(strmatch(names(idx),"prop1_"))
         {
+          if(skip) {
+            idx += 4;
+            continue;
+          }
           p1  =get_member(fstrm,names(idx));
           p2  =get_member(fstrm,names(++idx));
           p3  =get_member(fstrm,names(++idx));
