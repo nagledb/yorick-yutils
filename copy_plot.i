@@ -140,10 +140,10 @@ func replot_one_sys(wsrc,sin,wout,sout,lmt=)
 }
 
 
-func save_plot(filename,wsrc,pal=)
-/* DOCUMENT save_plot(filename,win,pal)
-   Save Yorick plot of window win in file 'filename'.
-   The plot can be reload with load_plot.
+func save_plot(fstrm,wsrc,pal=)
+/* DOCUMENT save_plot(fstrm,win,pal)
+   Save Yorick plot of window win in fstrm, which may be a filename, file
+   stream, or empty oxy group object. The plot can be reloaded with load_plot.
 
    KEYWORDS: pal= : save the palette if any in the file (the default)
    
@@ -166,8 +166,12 @@ func save_plot(filename,wsrc,pal=)
   local rp,gp,bp;
 
   if(is_void(pal)) pal=1;
-  
-  fstrm=createb(filename);
+
+  autoclose=0;
+  if(is_string(fstrm)) {
+    fstrm=createb(fstrm);
+    autoclose=1;
+  }
   old_win=current_window();
   if(old_win>=0) old_sys=plsys();
   window,wsrc;
@@ -204,7 +208,7 @@ func save_plot(filename,wsrc,pal=)
           save,fstrm,swrite(format="prop5_%d_%d",i,j),(is_void(rslt)?"dummy":rslt);
         }
     }
-  close,fstrm;
+  if(autoclose) close,fstrm;
   if(old_win>=0)
     {
       window,old_win;
@@ -213,10 +217,11 @@ func save_plot(filename,wsrc,pal=)
 }
 
 
-func load_plot(filename,wout,clear=,lmt=,pal=)
-/* DOCUMENT load_plot(filename,wout)
-   Load Yorick plot form file 'filename' in window wout
-   The plot have to be saved with save_plot.
+func load_plot(fstrm,wout,clear=,lmt=,pal=)
+/* DOCUMENT load_plot(fstrm,wout)
+   Load Yorick plot from fstrm (which may be a filename, file stream, or empty
+   oxy group object) and plot in wout. The plot have to be saved with
+   save_plot.
 
    EXAMPLE:
    window,0;
@@ -240,14 +245,18 @@ func load_plot(filename,wout,clear=,lmt=,pal=)
   if(is_void(  lmt)) lmt=1;
   if(is_void(  pal)) pal=1;
 
-  fstrm=openb(filename);
+  autoclose=0;
+  if(is_string(fstrm)) {
+    fstrm=openb(fstrm);
+    autoclose=1;
+  }
   old_win=current_window();
   if(old_win>=0) old_sys=plsys();
 
   window,wout;
   set_style,fstrm.getstyle_p1,fstrm.getstyle_p2,fstrm.getstyle_p3,fstrm.getstyle_p4;
   if(clear) fma;
-  names=*get_vars(fstrm)(1);
+  names=is_stream(fstrm) ? *get_vars(fstrm)(1) : fstrm(*,);
 
   palette_is_present=anyof(names=="palette");
   if(palette_is_present&&pal) {
@@ -284,7 +293,7 @@ func load_plot(filename,wout,clear=,lmt=,pal=)
         }
       write,format="[WARNING] Unknown variable flag %s !!\n",names(idx);
     }
-  close,fstrm;
+  if(autoclose) close,fstrm;
   redraw;
   if(old_win>=0)
     {
