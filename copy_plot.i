@@ -223,8 +223,8 @@ func save_plot(fstrm,wsrc,pal=)
 }
 
 
-func load_plot(fstrm,wout,clear=,lmt=,pal=)
-/* DOCUMENT load_plot(fstrm,wout)
+func load_plot(fstrm,wout,clear=,lmt=,pal=,style=)
+/* DOCUMENT load_plot,fstrm,wout,clear=,lmt=,pal=,style=
    Load Yorick plot from fstrm (which may be a filename, file stream, or empty
    oxy group object) and plot in wout. The plot have to be saved with
    save_plot.
@@ -243,6 +243,7 @@ func load_plot(fstrm,wout,clear=,lmt=,pal=)
              clear= if set (default) erase the window
                     before loading
              pal=   use the palette saved in the file if any (the default)
+             style= use the style saved in the file if any (the default)
    
    SEE ALSO: save_plot,copy_win
  */
@@ -250,6 +251,7 @@ func load_plot(fstrm,wout,clear=,lmt=,pal=)
   if(is_void(clear)) clear=1;
   if(is_void(  lmt)) lmt=1;
   if(is_void(  pal)) pal=1;
+  if(is_void(style)) style=1;
 
   autoclose=0;
   if(is_string(fstrm)) {
@@ -260,7 +262,8 @@ func load_plot(fstrm,wout,clear=,lmt=,pal=)
   if(old_win>=0) old_sys=plsys();
 
   window,wout;
-  set_style,fstrm.getstyle_p1,fstrm.getstyle_p2,fstrm.getstyle_p3,fstrm.getstyle_p4;
+  if(style)
+    set_style,fstrm.getstyle_p1,fstrm.getstyle_p2,fstrm.getstyle_p3,fstrm.getstyle_p4;
   if(clear) fma;
   names=is_stream(fstrm) ? *get_vars(fstrm)(1) : fstrm(*,);
 
