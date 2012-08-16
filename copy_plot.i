@@ -172,15 +172,15 @@ func save_plot(filename,wsrc,pal=)
   if(old_win>=0) old_sys=plsys();
   window,wsrc;
   get_style,a,b,c,d;
-  ssave,fstrm,"getstyle_p1",a;
-  ssave,fstrm,"getstyle_p2",b;
-  ssave,fstrm,"getstyle_p3",c;
-  ssave,fstrm,"getstyle_p4",d;
+  save,fstrm,"getstyle_p1",a;
+  save,fstrm,"getstyle_p2",b;
+  save,fstrm,"getstyle_p3",c;
+  save,fstrm,"getstyle_p4",d;
 
   palette,rp,gp,bp,query=1;
   if(!is_void(rp)&&pal) {
     rgb_pal=long(rp)+(long(gp)<<8)+(long(bp)<<16);
-    ssave,fstrm,"palette",rgb_pal;
+    save,fstrm,"palette",rgb_pal;
   }
 
   nbsys=get_nb_sys(wsrc);
@@ -189,19 +189,19 @@ func save_plot(filename,wsrc,pal=)
       plsys,i;
       lmt=limits();
       nbobj=numberof(plq());
-      ssave,fstrm,swrite(format="system_%d",i),i;
-      ssave,fstrm,swrite(format="limits_%d",i),lmt;
+      save,fstrm,swrite(format="system_%d",i),i;
+      save,fstrm,swrite(format="limits_%d",i),lmt;
       for(j=1;j<=nbobj;j++)
         {
           prop=plq(j);
           decomp_prop,prop,p1,p2,p3,p4,p5;
-          ssave,fstrm,swrite(format="prop1_%d_%d",i,j),(is_void(p1)?"dummy":p1);
-          ssave,fstrm,swrite(format="prop2_%d_%d",i,j),(is_void(p2)?"dummy":p2);
-          ssave,fstrm,swrite(format="prop3_%d_%d",i,j),(is_void(p3)?"dummy":p3);
-          ssave,fstrm,swrite(format="prop4_%d_%d",i,j),(is_void(p4)?"dummy":p4);
+          save,fstrm,swrite(format="prop1_%d_%d",i,j),(is_void(p1)?"dummy":p1);
+          save,fstrm,swrite(format="prop2_%d_%d",i,j),(is_void(p2)?"dummy":p2);
+          save,fstrm,swrite(format="prop3_%d_%d",i,j),(is_void(p3)?"dummy":p3);
+          save,fstrm,swrite(format="prop4_%d_%d",i,j),(is_void(p4)?"dummy":p4);
 
           rslt=reshape_prop(prop);
-          ssave,fstrm,swrite(format="prop5_%d_%d",i,j),(is_void(rslt)?"dummy":rslt);
+          save,fstrm,swrite(format="prop5_%d_%d",i,j),(is_void(rslt)?"dummy":rslt);
         }
     }
   close,fstrm;
